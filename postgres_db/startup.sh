@@ -154,3 +154,17 @@ echo "To use with Node.js viewer, run: source db_visualizer/postgres.env"
 echo "To connect to the database, use one of the following commands:"
 echo "psql -h localhost -U ${DB_USER} -d ${DB_NAME} -p ${DB_PORT}"
 echo "$(cat db_connection.txt)"
+
+# Apply application schema (idempotent) on every startup.
+# This is the DB container "bootstrap mechanism" hook point.
+if [ -f "./apply_schema.sh" ]; then
+    echo ""
+    echo "Applying application schema..."
+    chmod +x ./apply_schema.sh
+    ./apply_schema.sh || {
+        echo "ERROR: Schema application failed"
+        exit 1
+    }
+else
+    echo "WARNING: apply_schema.sh not found; skipping schema bootstrap"
+fi
